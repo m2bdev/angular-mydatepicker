@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "prepare": "npm run build" 
-  }
+  },
   "description": "Angular datepicker and date range picker",
   "homepage": "https://kekeh.github.io/angular-mydatepicker/",
   "keywords": [
