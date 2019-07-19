@@ -22,7 +22,8 @@
     "build-all": "ng build AngularMyDatePicker && node scripts/copy-artifacts.js && ng build",
     "test-lib": "node scripts/delete-coverage-folder.js && ng test --code-coverage=true AngularMyDatePicker",
     "lint-lib": "ng lint AngularMyDatePicker",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "prepare": "ng build AngularMyDatePicker && node scripts/copy-artifacts.js" 
   },
   "private": true,
   "dependencies": {
