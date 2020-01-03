@@ -247,3 +247,100 @@
 ### Features
 
 * none
+
+# 0.2.0 (2019-11-10)
+
+### Bug Fixes
+
+* Fixed bug: [angular Ivy](https://github.com/kekeh/angular-mydatepicker/issues/20)
+
+### Features
+
+* none
+
+# 0.2.1 (2019-11-17)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Added option divHostElement.
+
+
+# 0.2.2 (2019-11-23)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Added option calendarAnimation.
+
+
+# 0.2.3 (2019-11-23)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* README updated.
+
+
+# 0.3.0 (2019-11-24)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Changes to the animation functionality.
+
+
+# 0.3.1 (2019-11-24)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Changes to the animation functionality.
+
+
+# 0.3.2 (2019-12-01)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Merged: [Make toggleCalendar method return true on opening #23](https://github.com/kekeh/angular-mydatepicker/pull/23).
+
+
+# 0.3.3 (2019-12-11)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Show marked dates as a triangle on the calendar.
+
+
+# 0.3.4 (2019-12-13)
+
+### Bug Fixes
+
+* none
+
+### Features
+
+* Added option showMonthNumber.

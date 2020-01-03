@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {AngularMyDatePickerDirective, DefaultView, IAngularMyDpOptions, IMyCalendarViewChanged, IMyDate, IMyDateModel, IMyDefaultMonth, IMyInputFieldChanged, IMyMarkedDate, IMyRangeDateSelection} from '../../../projects/angular-mydatepicker/src/public-api';
+import {AngularMyDatePickerDirective, DefaultView, IAngularMyDpOptions, IMyCalendarViewChanged, IMyDate, IMyDateModel, IMyDefaultMonth, IMyInputFieldChanged, IMyMarkedDate, IMyRangeDateSelection, CalAnimation} from '../../../projects/angular-mydatepicker/src/public-api';
 
 @Component({
   selector: 'date-picker-ngmodel',
@@ -39,9 +39,11 @@ export class DatePickerNgmodel implements OnInit {
     selectorWidth: '252px',
     closeSelectorOnDateSelect: true,
     closeSelectorOnDocumentClick: true,
+    showMonthNumber: true,
     appendSelectorToBody: false,
     focusInputOnDateSelect: true,
     defaultView: DefaultView.Date,
+    calendarAnimation: {in: CalAnimation.None, out: CalAnimation.None},
     stylesData:
       {
         selector: '',
@@ -65,6 +67,7 @@ export class DatePickerNgmodel implements OnInit {
 
   public selectorSizes: Array<string> = new Array('232px x 252px', '200px x 220px', '260px x 290px');
   public defaultViews: Array<string> = new Array('date', 'month', 'year');
+  public calAnimations: Array<string> = new Array('None', 'Fade', 'ScaleTop-ScaleCenter', 'ScaleCenter-ScaleTop', 'Rotate', 'FlipDiagonal');
 
   public locale: string = 'en';
 
@@ -361,6 +364,12 @@ export class DatePickerNgmodel implements OnInit {
     this.myDatePickerOptions = copy;
   }
 
+  onShowMonthNumber(checked: boolean) {
+    let copy = this.getCopyOfOptions();
+    copy.showMonthNumber = checked;
+    this.myDatePickerOptions = copy;
+  }
+
   onDisableInput(checked: boolean) {
     this.disabled = checked;
   }
@@ -371,18 +380,43 @@ export class DatePickerNgmodel implements OnInit {
     if (size === '232px x 252px') {
       copy.selectorHeight = '232px';
       copy.selectorWidth = '252px';
-      this.myDatePickerOptions = copy;
     }
     else if (size === '200px x 220px') {
       copy.selectorHeight = '200px';
       copy.selectorWidth = '220px';
-      this.myDatePickerOptions = copy;
     }
     else {
       copy.selectorHeight = '260px';
       copy.selectorWidth = '290px';
-      this.myDatePickerOptions = copy;
     }
+
+    this.myDatePickerOptions = copy;
+  }
+
+
+  onCalendarAnimation(animation: string) {
+    let copy = this.getCopyOfOptions();
+
+    if (animation === 'None') {
+      copy.calendarAnimation = {in: CalAnimation.None, out: CalAnimation.None};
+    }
+    else if (animation === 'Fade') {
+      copy.calendarAnimation = {in: CalAnimation.Fade, out: CalAnimation.Fade};
+    }
+    else if (animation === 'ScaleTop-ScaleCenter') {
+      copy.calendarAnimation = {in: CalAnimation.ScaleTop, out: CalAnimation.ScaleCenter};
+    }
+    else if (animation === 'ScaleCenter-ScaleTop') {
+      copy.calendarAnimation = {in: CalAnimation.ScaleCenter, out: CalAnimation.ScaleTop};
+    }
+    else if (animation === 'Rotate') {
+      copy.calendarAnimation = {in: CalAnimation.Rotate, out: CalAnimation.Rotate};
+    }
+    else if (animation === 'FlipDiagonal') {
+      copy.calendarAnimation = {in: CalAnimation.FlipDiagonal, out: CalAnimation.FlipDiagonal};
+    }
+
+    this.myDatePickerOptions = copy;
   }
 
   onDefaultView(size: string) {
@@ -390,16 +424,15 @@ export class DatePickerNgmodel implements OnInit {
 
     if (size === 'date') {
       copy.defaultView = DefaultView.Date;
-      this.myDatePickerOptions = copy;
     }
     else if (size === 'month') {
       copy.defaultView = DefaultView.Month;
-      this.myDatePickerOptions = copy;
     }
     else {
       copy.defaultView = DefaultView.Year;
-      this.myDatePickerOptions = copy;
     }
+
+    this.myDatePickerOptions = copy;
   }
 
   onChangeLocale(locale: any) {
