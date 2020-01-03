@@ -12,7 +12,7 @@ import {IMyDateFormat} from "../interfaces/my-date-format.interface";
 import {IMyOptions} from "../interfaces/my-options.interface";
 import {KeyCode} from "../enums/key-code.enum";
 import {KeyName} from "../enums/key-name.enum";
-import {D, DD, M, MM, MMM, YYYY, SU, MO, TU, WE, TH, FR, SA, ZERO_STR, EMPTY_STR} from "../constants/constants";
+import {D, DD, M, MM, MMM, YYYY, SU, MO, TU, WE, TH, FR, SA, ZERO_STR, EMPTY_STR, PIPE} from "../constants/constants";
 
 @Injectable()
 export class UtilService {
@@ -25,6 +25,10 @@ export class UtilService {
     const daysInMonth: Array<number> = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     const isMonthStr: boolean = dateFormat.indexOf(MMM) !== -1;
     const delimeters: Array<string> = dateFormat.match(/[^(dmy)]{1,}/g);
+
+    if (!dateStr || dateStr === EMPTY_STR) {
+      return returnDate;
+    }
 
     const dateValue: Array<IMyDateFormat> = this.getDateValue(dateStr, dateFormat, delimeters);
     const year: number = this.getNumberByValue(dateValue[0]);
@@ -346,38 +350,43 @@ export class UtilService {
     return Math.round(this.getTimeInMilliseconds(date) / 1000.0);
   }
 
-  getKeyCodeFromEvent(event: any): number {
-    const key: any = event.key || event.keyCode;
+  getKeyCodeFromEvent(evt: any): number {
+    let key: any = evt.key || evt.keyCode || evt.which;
 
-    if (key === KeyName.enter || key === KeyCode.enter) {
+    if (this.checkKeyName(key, KeyName.enter) || key === KeyCode.enter) {
       return KeyCode.enter;
     }
-    else if (key === KeyName.esc || key === KeyCode.esc) {
+    else if (this.checkKeyName(key, KeyName.esc) || key === KeyCode.esc) {
       return KeyCode.esc;
     }
-    else if (key === KeyName.space || key === KeyCode.space) {
+    else if (this.checkKeyName(key, KeyName.space) || key === KeyCode.space) {
       return KeyCode.space;
     }
-    else if (key === KeyName.leftArrow || key === KeyCode.leftArrow) {
+    else if (this.checkKeyName(key, KeyName.leftArrow) || key === KeyCode.leftArrow) {
       return KeyCode.leftArrow;
     }
-    else if (key === KeyName.upArrow || key === KeyCode.upArrow) {
+    else if (this.checkKeyName(key, KeyName.upArrow) || key === KeyCode.upArrow) {
       return KeyCode.upArrow;
     }
-    else if (key === KeyName.rightArrow || key === KeyCode.rightArrow) {
+    else if (this.checkKeyName(key, KeyName.rightArrow) || key === KeyCode.rightArrow) {
       return KeyCode.rightArrow;
     }
-    else if (key === KeyName.downArrow || key === KeyCode.downArrow) {
+    else if (this.checkKeyName(key, KeyName.downArrow)|| key === KeyCode.downArrow) {
       return KeyCode.downArrow;
     }
-    else if (key === KeyName.tab || key === KeyCode.tab) {
+    else if (this.checkKeyName(key, KeyName.tab) || key === KeyCode.tab) {
       return KeyCode.tab;
     }
-    else if (key === KeyName.shift || key === KeyCode.shift) {
+    else if (this.checkKeyName(key, KeyName.shift) || key === KeyCode.shift) {
       return KeyCode.shift;
     }
     else {
       return null;
     }
+  }
+
+  checkKeyName(key: string, keyName: string): boolean {
+    const arr: Array<string> = keyName.split(PIPE);
+    return arr.indexOf(key) !== -1;
   }
 }

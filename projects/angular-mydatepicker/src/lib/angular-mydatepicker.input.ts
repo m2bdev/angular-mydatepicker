@@ -1,4 +1,5 @@
-import {Directive, Input, ComponentRef, ElementRef, ViewContainerRef, Renderer2, ChangeDetectorRef, ComponentFactoryResolver, forwardRef, EventEmitter, Output, SimpleChanges, OnChanges, HostListener, OnDestroy} from "@angular/core";
+import {Directive, Input, ComponentRef, ElementRef, ViewContainerRef, Renderer2, ChangeDetectorRef, 
+  ComponentFactoryResolver, forwardRef, EventEmitter, Output, SimpleChanges, OnChanges, HostListener, OnDestroy} from "@angular/core";
 import {AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, Validator} from "@angular/forms";
 import {CalendarComponent} from "./components/calendar/calendar.component";
 import {IMyDate} from "./interfaces/my-date.interface";
@@ -15,8 +16,10 @@ import {DefaultConfigService} from "./services/angular-mydatepicker.config.servi
 import {CalToggle} from "./enums/cal-toggle.enum";
 import {Year} from "./enums/year.enum";
 import {KeyCode} from "./enums/key-code.enum";
+import {CalAnimation} from "./enums/cal-animation.enum";
+import {KEYUP, BLUR, EMPTY_STR, DISABLED, CLICK, BODY, VALUE, PREVENT_CLOSE_TIMEOUT, OPTIONS, DEFAULT_MONTH, 
+  LOCALE, OBJECT, PX, INNER_HTML, ANIMATION_END, ANIMATION_TIMEOUT} from "./constants/constants";
 
-import {KEYUP, BLUR, EMPTY_STR, DISABLED, CLICK, BODY, VALUE, PREVENT_CLOSE_TIMEOUT, OPTIONS, DEFAULT_MONTH, LOCALE, OBJECT, PX} from "./constants/constants";
 
 const NGX_DP_VALUE_ACCESSOR = {
   provide: NG_VALUE_ACCESSOR,
@@ -47,7 +50,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
   @Output() rangeDateSelection: EventEmitter<IMyRangeDateSelection> = new EventEmitter<IMyRangeDateSelection>();
 
   private cRef: ComponentRef<CalendarComponent> = null;
-  private inputText: string = "";
+  private hostText: string = "";
   private preventClose: boolean = false;
   private disabled = false;
 
@@ -78,7 +81,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
       this.closeSelector(CalToggle.CloseByEsc);
     }
     else {
-      const {value} = this.elem.nativeElement;
+      const value: string = this.getHostValue();
 
       let valid: boolean = false;
       if (!this.opts.dateRange) {
@@ -97,13 +100,13 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
     const {inputFieldValidation, dateRange, dateFormat, monthLabels, dateRangeDatesDelimiter, closeSelectorOnDateSelect} = this.opts;
 
     if (inputFieldValidation) {
-      const {value} = this.elem.nativeElement;
+      const value: string = this.getHostValue();
 
       let valid: boolean = false;
       if (!dateRange) {
         const date: IMyDate = this.utilService.isDateValid(value, this.opts);
         valid = this.utilService.isInitializedDate(date);
-        if (valid && this.inputText !== value) {
+        if (valid && this.hostText !== value) {
           // Valid date
           const dateModel: IMyDateModel = this.utilService.getDateModel(date, null, dateFormat, monthLabels, dateRangeDatesDelimiter);
           this.emitDateChanged(dateModel);
@@ -117,7 +120,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
         const dateRange: IMyDateRange = this.utilService.isDateValidDateRange(value, this.opts);
         const {begin, end} = dateRange;
         valid = this.utilService.isInitializedDate(begin) && this.utilService.isInitializedDate(end);
-        if (valid && this.inputText !== value) {
+        if (valid && this.hostText !== value) {
           // Valid date range
           const dateModel: IMyDateModel = this.utilService.getDateModel(null, dateRange, dateFormat, monthLabels, dateRangeDatesDelimiter);
           this.emitDateChanged(dateModel);
@@ -128,7 +131,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
         }
       }
 
-      if (!valid && this.inputText !== value) {
+      if (!valid && this.hostText !== value) {
         if (value === EMPTY_STR) {
           this.clearDate();
         }
@@ -137,16 +140,15 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
         }
       }
 
-      this.inputText = value;
+      this.hostText = value;
     }
 
     this.onTouchedCb();
   }
 
-  // wrapper with arrow function to preserve the use of 'this' word
-  private onClickWrapper = (ev: MouseEvent) => { this.onClick(ev); };
+  private onClickWrapper = (evt: MouseEvent) => this.onClick(evt);
 
-  onClick(evt: MouseEvent) {
+  private onClick(evt: MouseEvent) {
     if (this.opts.closeSelectorOnDocumentClick && !this.preventClose && evt.target && this.cRef !== null && this.elem.nativeElement !== evt.target && !this.cRef.location.nativeElement.contains(evt.target) && !this.disabled) {
       this.closeSelector(CalToggle.CloseByOutClick);
     }
@@ -178,7 +180,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
     this.closeCalendar();
   }
 
-  setLocaleOptions(): void {
+  public setLocaleOptions(): void {
     const opts: IMyOptions = this.localeService.getLocaleOptions(this.locale);
     Object.keys(opts).forEach((k) => {
       (<IMyOptions> this.opts)[k] = opts[k];
@@ -213,7 +215,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
     const {dateFormat, monthLabels, dateRangeDatesDelimiter} = this.opts;
 
     if (!value) {
-      this.setInputValue(EMPTY_STR);
+      this.setHostValue(EMPTY_STR);
       this.emitInputFieldChanged(EMPTY_STR, false);
 
       if (this.cRef !== null) {
@@ -229,7 +231,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
       const formatted: string = this.utilService.formatDate(date, dateFormat, monthLabels);
       const valid: boolean = this.utilService.isInitializedDate(this.utilService.isDateValid(formatted, this.opts));
       if (valid) {
-        this.setInputValue(formatted);
+        this.setHostValue(formatted);
         this.emitInputFieldChanged(formatted, valid);
 
         if (this.cRef !== null) {
@@ -253,7 +255,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
         const {begin, end} = this.utilService.isDateValidDateRange(formatted, this.opts);
         const valid: boolean = this.utilService.isInitializedDate(begin) && this.utilService.isInitializedDate(end);
         if (valid) {
-          this.setInputValue(formatted);
+          this.setHostValue(formatted);
           this.emitInputFieldChanged(formatted, valid);
 
           if (this.cRef !== null) {
@@ -282,7 +284,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
   }
 
   public validate(c: AbstractControl): { [p: string]: any } {
-    const {value} = this.elem.nativeElement;
+    const value: string = this.getHostValue();
 
     if (value === null || value === EMPTY_STR) {
       return null;
@@ -303,11 +305,11 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
     if (this.cRef === null) {
       this.cRef = this.vcRef.createComponent(this.cfr.resolveComponentFactory(CalendarComponent));
       this.appendSelector(this.cRef.location.nativeElement);
-      this.cRef.instance.initialize(
+      this.cRef.instance.initializeComponent(
         this.opts,
         this.defaultMonth,
         this.getSelectorPosition(this.elem.nativeElement),
-        this.elem.nativeElement.value,
+        this.getHostValue(),
         (dm: IMyDateModel, close: boolean) => {
           this.focusToInput();
           this.emitDateChanged(dm);
@@ -328,6 +330,10 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
         }
       );
       this.emitCalendarToggle(CalToggle.Open);
+
+      if (!this.opts.inline) {
+        document.addEventListener(CLICK, this.onClickWrapper);
+      }
     }
     setTimeout(() => {
       this.preventClose = false;
@@ -338,25 +344,27 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
     this.closeSelector(CalToggle.CloseByCalBtn);
   }
 
-  public toggleCalendar(): void {
+  public toggleCalendar(): boolean | null {
     if (this.disabled) {
       return;
     }
-    if (this.cRef === null) {
-      document.addEventListener(CLICK, this.onClickWrapper);
+
+    const isOpen: boolean = this.cRef === null;
+
+    if (isOpen) {
       this.openCalendar();
     }
     else {
-      document.removeEventListener(CLICK, this.onClickWrapper);
       this.closeSelector(CalToggle.CloseByCalBtn);
     }
+    return isOpen;
   }
 
   public clearDate(): void {
     if (this.disabled) {
       return;
     }
-    this.setInputValue(EMPTY_STR);
+    this.setHostValue(EMPTY_STR);
     this.emitDateChanged({
       isRange: this.opts.dateRange,
       singleDate: {
@@ -381,7 +389,7 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
   }
 
   public isDateValid(): boolean {
-    const {value} = this.elem.nativeElement;
+    const value: string = this.getHostValue();
 
     if (value !== EMPTY_STR) {
       const date: IMyDate = this.utilService.isDateValid(value, this.opts);
@@ -398,27 +406,66 @@ export class AngularMyDatePickerDirective implements OnChanges, OnDestroy, Contr
     return keyCode === KeyCode.leftArrow || keyCode === KeyCode.rightArrow || keyCode === KeyCode.upArrow || keyCode === KeyCode.downArrow || keyCode === KeyCode.tab || keyCode === KeyCode.shift;
   }
 
-  private closeSelector(reason: number): void {
-    if (this.cRef !== null && !this.opts.inline) {
-      this.vcRef.remove(this.vcRef.indexOf(this.cRef.hostView));
-      this.cRef = null;
+  private onAnimateWrapper = (reason: number) => this.animationEnd(reason);
+
+  private animationEnd(reason: number): void {
+    if (this.cRef !== null) {
+      this.cRef.instance.selectorEl.nativeElement.removeEventListener(ANIMATION_END, this.onAnimateWrapper);
+      this.removeComponent();
       this.emitCalendarToggle(reason);
     }
   }
 
+  private closeSelector(reason: number): void {
+    const {inline, calendarAnimation} = this.opts;
+    
+    if (this.cRef !== null && !inline) {
+      if (calendarAnimation.out !== CalAnimation.None) {
+        const {instance} = this.cRef;
+        instance.selectorEl.nativeElement.addEventListener(ANIMATION_END, this.onAnimateWrapper.bind(this, reason));
+        instance.setCalendarAnimation(calendarAnimation, false);
+
+        // In case the animationend event is not fired
+        setTimeout(this.onAnimateWrapper.bind(this, reason), ANIMATION_TIMEOUT);
+      }
+      else {
+        this.removeComponent();
+        this.emitCalendarToggle(reason);
+      }
+
+      document.removeEventListener(CLICK, this.onClickWrapper);
+    }
+  }
+
+  private removeComponent(): void {
+    if (this.vcRef !== null) {
+      this.vcRef.remove(this.vcRef.indexOf(this.cRef.hostView));
+      this.cRef = null;
+    }
+  }
+  
   private updateModel(model: IMyDateModel): void {
-    this.setInputValue(this.utilService.getFormattedDate(model));
+    this.setHostValue(this.utilService.getFormattedDate(model));
     this.onChangeCb(model);
     this.onTouchedCb();
   }
 
-  private setInputValue(value: string): void {
-    this.inputText = value;
-    this.renderer.setProperty(this.elem.nativeElement, VALUE, value);
+  private setHostValue(value: string): void {
+    const {divHostElement} = this.opts;
+    this.hostText = value;
+    const valueType: string = !divHostElement.enabled ? VALUE : INNER_HTML;
+    value = valueType === INNER_HTML && value === EMPTY_STR ? divHostElement.placeholder : value;
+    this.renderer.setProperty(this.elem.nativeElement, valueType, value);
+  }
+
+  private getHostValue(): string {
+    const {value, innerHTML} = this.elem.nativeElement;
+    return !this.opts.divHostElement.enabled ? value : innerHTML;
   }
 
   private focusToInput(): void {
-    if (this.opts.focusInputOnDateSelect) {
+    const {focusInputOnDateSelect, divHostElement} = this.opts;
+    if (focusInputOnDateSelect && !divHostElement.enabled) {
       setTimeout(() => {
         this.elem.nativeElement.focus();
       });

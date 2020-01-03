@@ -1,4 +1,4 @@
-import {Component, ElementRef, ViewEncapsulation, ViewChild, Renderer2, ChangeDetectorRef, OnDestroy, HostBinding} from "@angular/core";
+import {Component, ElementRef, ViewEncapsulation, ViewChild, Renderer2, ChangeDetectorRef, AfterViewInit, OnDestroy, HostBinding} from "@angular/core";
 import {IMyDate} from "../../interfaces/my-date.interface";
 import {IMyDateRange} from "../../interfaces/my-date-range.interface";
 import {IMyMonth} from "../../interfaces/my-month.interface";
@@ -11,11 +11,14 @@ import {IMySelectorPosition} from "../../interfaces/my-selector-pos.interface";
 import {IMyCalendarViewChanged} from "../../interfaces/my-calendar-view-changed.interface";
 import {IMyDateModel} from "../../interfaces/my-date-model.interface";
 import {IMyRangeDateSelection} from "../../interfaces/my-range-date-selection.interface";
+import {IMyCalendarAnimation} from "../../interfaces/my-calendar-animation.interface";
 import {UtilService} from "../../services/angular-mydatepicker.util.service";
 import {KeyCode} from "../../enums/key-code.enum";
 import {MonthId} from "../../enums/month-id.enum";
 import {DefaultView} from "../../enums/default-view.enum";
-import {DOT, UNDER_LINE, D, M, Y, DATE_ROW_COUNT, DATE_COL_COUNT, MONTH_ROW_COUNT, MONTH_COL_COUNT, YEAR_ROW_COUNT, YEAR_COL_COUNT, SU, MO, TU, WE, TH, FR, SA, EMPTY_STR, CLICK, STYLE} from "../../constants/constants";
+import {CalAnimation} from "../../enums/cal-animation.enum";
+import {DOT, UNDER_LINE, D, M, Y, DATE_ROW_COUNT, DATE_COL_COUNT, MONTH_ROW_COUNT, MONTH_COL_COUNT, YEAR_ROW_COUNT, YEAR_COL_COUNT, 
+  SU, MO, TU, WE, TH, FR, SA, EMPTY_STR, CLICK, STYLE, MY_DP_ANIMATION, ANIMATION_NAMES, IN, OUT} from "../../constants/constants";
 
 @Component({
   selector: "lib-angular-mydatepicker-calendar",
@@ -24,7 +27,7 @@ import {DOT, UNDER_LINE, D, M, Y, DATE_ROW_COUNT, DATE_COL_COUNT, MONTH_ROW_COUN
   providers: [UtilService],
   encapsulation: ViewEncapsulation.None
 })
-export class CalendarComponent implements OnDestroy {
+export class CalendarComponent implements AfterViewInit, OnDestroy {
   @ViewChild("selectorEl") selectorEl: ElementRef;
   @ViewChild("styleEl") styleEl: ElementRef;
   
@@ -64,16 +67,8 @@ export class CalendarComponent implements OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.clickListener();
-  }
-
-  initialize(opts: IMyOptions, defaultMonth: string, selectorPos: IMySelectorPosition, inputValue: string, dc: (dm: IMyDateModel, close: boolean) => void, cvc: (cvc: IMyCalendarViewChanged) => void, rds: (rds: IMyRangeDateSelection) => void, cbe: () => void): void {
-    this.opts = opts;
-    this.selectorPos = selectorPos;
-    this.weekDays.length = 0;
-
-    const {defaultView, dateRange, firstDayOfWeek, dayLabels, stylesData} = this.opts;
+  ngAfterViewInit(): void {
+    const {stylesData, calendarAnimation} = this.opts;
 
     if (stylesData.styles.length) {
       const styleElTemp: any = this.renderer.createElement(STYLE);
@@ -81,6 +76,27 @@ export class CalendarComponent implements OnDestroy {
       this.renderer.appendChild(this.styleEl.nativeElement, styleElTemp);
     }
 
+    if (calendarAnimation.in !== CalAnimation.None) {
+      this.setCalendarAnimation(calendarAnimation, true);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clickListener();
+  }
+
+  initializeComponent(opts: IMyOptions, defaultMonth: string, selectorPos: IMySelectorPosition, inputValue: string, dc: (dm: IMyDateModel, close: boolean) => void, cvc: (cvc: IMyCalendarViewChanged) => void, rds: (rds: IMyRangeDateSelection) => void, cbe: () => void): void {
+    this.opts = opts;
+    this.selectorPos = selectorPos;
+    
+    this.dateChanged = dc;
+    this.calendarViewChanged = cvc;
+    this.rangeDateSelection = rds;
+    this.closedByEsc = cbe;
+
+    const {defaultView, dateRange, firstDayOfWeek, dayLabels} = this.opts;
+
+    this.weekDays.length = 0;
     this.dayIdx = this.weekDayOpts.indexOf(firstDayOfWeek);
     if (this.dayIdx !== -1) {
       let idx: number = this.dayIdx;
@@ -116,11 +132,6 @@ export class CalendarComponent implements OnDestroy {
       }
     }
 
-    this.dateChanged = dc;
-    this.calendarViewChanged = cvc;
-    this.rangeDateSelection = rds;
-    this.closedByEsc = cbe;
-
     this.setCalendarVisibleMonth();
 
     if (defaultView === DefaultView.Month) {
@@ -144,6 +155,21 @@ export class CalendarComponent implements OnDestroy {
     }
     else if (selectYear) {
       this.generateYears(years[2][2].year);
+    }
+  }
+
+  setCalendarAnimation(calAnimation: IMyCalendarAnimation, isOpen: boolean): void {
+    const {nativeElement} = this.selectorEl;
+    const {renderer} = this;
+
+    const classIn = MY_DP_ANIMATION + ANIMATION_NAMES[calAnimation.in - 1];
+    if (isOpen) {
+      renderer.addClass(nativeElement, classIn + IN);
+    }
+    else {
+      const classOut = MY_DP_ANIMATION + ANIMATION_NAMES[calAnimation.out - 1];
+      renderer.removeClass(nativeElement, classIn + IN);
+      renderer.addClass(nativeElement, classOut + OUT);
     }
   }
 
@@ -409,9 +435,9 @@ export class CalendarComponent implements OnDestroy {
   }
 
   selectDate(date: IMyDate): void {
-    const {dateFormat, monthLabels, dateRangeDatesDelimiter, closeSelectorOnDateSelect} = this.opts;
+    const {dateRange, dateFormat, monthLabels, dateRangeDatesDelimiter, closeSelectorOnDateSelect} = this.opts;
 
-    if (this.opts.dateRange) {
+    if (dateRange) {
       // Date range
       const isBeginDateInitialized: boolean = this.utilService.isInitializedDate(this.selectedDateRange.begin);
       const isEndDateInitialized: boolean = this.utilService.isInitializedDate(this.selectedDateRange.end);

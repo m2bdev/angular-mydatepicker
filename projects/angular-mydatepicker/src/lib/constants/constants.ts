@@ -18,6 +18,7 @@ const YEAR_COL_COUNT = 4;
 
 const DOT = ".";
 const UNDER_LINE = "_";
+const PIPE = "|";
 
 const SU = "su";
 const MO = "mo";
@@ -44,6 +45,7 @@ const LOCALE = "locale";
 const OBJECT = "object";
 const PX = "px";
 const STYLE = "style";
+const INNER_HTML = "innerHTML";
 
 const OPTS = "opts";
 const YEARS = "years";
@@ -57,6 +59,13 @@ const WEEK_DAYS = "weekDays";
 const SELECTED_DATE = "selectedDate";
 const SELECTED_DATE_RANGE = "selectedDateRange";
 const MONTHS = "months";
+
+const ANIMATION_END = "animationend";
+const ANIMATION_TIMEOUT = 550;
+const MY_DP_ANIMATION = "myDpAnimation";
+const ANIMATION_NAMES = ["Fade", "ScaleTop", "ScaleCenter", "Rotate", "FlipDiagonal", "Own"];
+const IN = "In";
+const OUT = "Out";
 
 const PREVENT_CLOSE_TIMEOUT = 50;
 
@@ -76,6 +85,7 @@ export {
   YEAR_COL_COUNT,
   DOT,
   UNDER_LINE,
+  PIPE,
   SU,
   MO,
   TU,
@@ -98,6 +108,7 @@ export {
   OBJECT,
   PX,
   STYLE,
+  INNER_HTML,
   OPTS,
   YEARS,
   VISIBLE_MONTH,
@@ -110,5 +121,11 @@ export {
   SELECTED_DATE,
   SELECTED_DATE_RANGE,
   MONTHS,
+  ANIMATION_END,
+  ANIMATION_TIMEOUT,
+  MY_DP_ANIMATION,
+  ANIMATION_NAMES,
+  IN,
+  OUT,
   PREVENT_CLOSE_TIMEOUT
 };

@@ -5,6 +5,8 @@ import {IMyDateRange} from "./my-date-range.interface";
 import {IMyMarkedDates} from "./my-marked-dates.interface";
 import {IMyMarkedDate} from "./my-marked-date.interface";
 import {IMyStyles} from "./my-styles.interface";
+import {IMyDivHostElement} from "./my-div-host-element.interface";
+import {IMyCalendarAnimation} from "./my-calendar-animation.interface";
 import {DefaultView} from "../enums/default-view.enum";
 import {Year} from "../enums/year.enum";
 
@@ -49,7 +51,10 @@ export interface IMyOptions {
   moveFocusByArrowKeys?: boolean;
   dateRangeDatesDelimiter?: string;
   inputFieldValidation?: boolean;
+  showMonthNumber?: boolean;
+  calendarAnimation?: IMyCalendarAnimation;
   stylesData?: IMyStyles;
+  divHostElement?: IMyDivHostElement;
   ariaLabelPrevMonth?: string;
   ariaLabelNextMonth?: string;
 }

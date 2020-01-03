@@ -8,6 +8,7 @@ import {AngularMyDatePickerDirective} from '../angular-mydatepicker.input';
 import {IAngularMyDpOptions, IMyOptions} from '../interfaces/my-options.interface';
 import {IMyDateModel} from '../interfaces/my-date-model.interface';
 import {DefaultView} from '../enums/default-view.enum';
+import {CalAnimation} from '../enums/cal-animation.enum';
 
 let comp: AngularMyDatepickerTestComponent;
 let fixture: ComponentFixture<AngularMyDatepickerTestComponent>;
@@ -159,7 +160,8 @@ describe('AngularMyDatePickerComponent', () => {
   it('validate date selection on calendar',() => {
     let opts: IMyOptions = {
       dateRange: false,
-      dateFormat: 'dd.mm.yyyy'
+      dateFormat: 'dd.mm.yyyy',
+      showMonthNumber: false
     };
 
     comp.parseOptions(opts);
@@ -214,7 +216,8 @@ describe('AngularMyDatePickerComponent', () => {
   it('validate date range selection on calendar',() => {
     let opts: IMyOptions = {
       dateRange: true,
-      dateFormat: 'dd.mm.yyyy'
+      dateFormat: 'dd.mm.yyyy',
+      showMonthNumber: false
     };
 
     comp.parseOptions(opts);
@@ -759,7 +762,7 @@ describe('AngularMyDatePickerComponent', () => {
     fixture.detectChanges();
     daycell = getElement('.d_0_1');
     expect(daycell).not.toBe(null);
-    expect(window.getComputedStyle(daycell).backgroundColor).toBe('rgb(246, 246, 246)');
+    expect(window.getComputedStyle(daycell).backgroundColor).toBe('rgb(255, 255, 255)');
 
     fixture.detectChanges();
     daycell = getElement('.d_0_2');
@@ -784,7 +787,7 @@ describe('AngularMyDatePickerComponent', () => {
     fixture.detectChanges();
     daycell = getElement('.d_0_1');
     expect(daycell).not.toBe(null);
-    expect(window.getComputedStyle(daycell).backgroundColor).toBe('rgb(246, 246, 246)');
+    expect(window.getComputedStyle(daycell).backgroundColor).toBe('rgb(255, 255, 255)');
 
     comp.closeCalendar();
   });
@@ -1266,7 +1269,8 @@ describe('AngularMyDatePickerComponent', () => {
     comp.setDefaultMonth('2019/05');
 
     let opts: IMyOptions = {
-      monthSelector: true
+      monthSelector: true,
+      showMonthNumber: false
     };
 
     comp.parseOptions(opts);
@@ -1764,7 +1768,7 @@ describe('AngularMyDatePickerComponent', () => {
     let markdate = getElements('.myDpMarkDate');
     expect(markdate).not.toBe(null);
     expect(markdate.length).toBe(2);
-    expect(markdate[0].style['background-color']).toBe('red');
+    expect(markdate[0].style['border-top']).toBe('8px solid red');
 
     comp.closeCalendar();
 
@@ -1794,7 +1798,7 @@ describe('AngularMyDatePickerComponent', () => {
     let markdate = getElements('.myDpMarkDate');
     expect(markdate).not.toBe(null);
     expect(markdate.length).toBe(12);
-    expect(markdate[0].style['background-color']).toBe('blue');
+    expect(markdate[0].style['border-top']).toBe('8px solid blue');
 
     comp.closeCalendar();
 
@@ -2083,6 +2087,113 @@ describe('AngularMyDatePickerComponent', () => {
     fixture.detectChanges();
     let input = getElement('.myDateInput');
     expect(input.value).toBe('29.04.2019 * 30.04.2019');
+  });
+
+  it('options - showMonthNumber', () => {
+    comp.setDefaultMonth('2019/12');
+    let opts: IMyOptions = {
+      dateRange: false,
+      dateFormat: 'dd.mm.yyyy',
+      showMonthNumber: true
+    };
+
+    comp.parseOptions(opts);
+    comp.openCalendar();
+
+    fixture.detectChanges();
+    let selector = getElement('.myDpSelector');
+    expect(selector).not.toBe(null);
+
+    comp.openCalendar();
+    fixture.detectChanges();
+    let monthBtn = getElement('.myDpMonthBtn');
+    expect(monthBtn).not.toBe(null);
+
+    fixture.detectChanges();
+    monthBtn.click();
+
+    fixture.detectChanges();
+    let monthsNbrs = getElements('.myDpMonthNbr');
+    expect(monthsNbrs).not.toBe(null);
+    expect(monthsNbrs.length).toBe(12);
+    expect(monthsNbrs[0].textContent.trim()).toBe('1');
+    expect(monthsNbrs[3].textContent.trim()).toBe('4');
+    expect(monthsNbrs[6].textContent.trim()).toBe('7');
+    expect(monthsNbrs[9].textContent.trim()).toBe('10');
+    expect(monthsNbrs[11].textContent.trim()).toBe('12');
+
+    fixture.detectChanges();
+    let prevMonth = getElement('.myDpIconLeftArrow');
+    expect(prevMonth).not.toBe(null);
+
+    fixture.detectChanges();
+    prevMonth.click();
+
+    fixture.detectChanges();
+    monthsNbrs = getElements('.myDpMonthNbr');
+    expect(monthsNbrs).not.toBe(null);
+    expect(monthsNbrs.length).toBe(12);
+    expect(monthsNbrs[0].textContent.trim()).toBe('1');
+    expect(monthsNbrs[3].textContent.trim()).toBe('4');
+    expect(monthsNbrs[6].textContent.trim()).toBe('7');
+    expect(monthsNbrs[9].textContent.trim()).toBe('10');
+    expect(monthsNbrs[11].textContent.trim()).toBe('12');
+
+    comp.closeCalendar();
+
+    opts.showMonthNumber = false;
+
+    comp.parseOptions(opts);
+    comp.openCalendar();
+
+    fixture.detectChanges();
+    selector = getElement('.myDpSelector');
+    expect(selector).not.toBe(null);
+
+    comp.openCalendar();
+    fixture.detectChanges();
+    monthBtn = getElement('.myDpMonthBtn');
+    expect(monthBtn).not.toBe(null);
+
+    fixture.detectChanges();
+    monthBtn.click();
+
+    fixture.detectChanges();
+    monthsNbrs = getElement('.myDpMonthNbr');
+    expect(monthsNbrs).toBe(null);
+
+    comp.closeCalendar();
+  });
+
+  it('options - calendarAnimation', () => {
+    comp.setDefaultMonth('2019/11');
+    let opts: IMyOptions = {
+      dateRange: false,
+      dateFormat: 'dd.mm.yyyy',
+      calendarAnimation: {in: CalAnimation.ScaleTop, out: CalAnimation.Rotate}
+    };
+
+    comp.parseOptions(opts);
+    comp.openCalendar();
+
+    fixture.detectChanges();
+    let animationElem = getElement('.myDpAnimationScaleTopIn');
+    expect(animationElem).not.toBe(null);
+
+    fixture.detectChanges();
+    let date = getElement('.d_0_0');
+    expect(date).not.toBe(null);
+
+    fixture.detectChanges();
+    date.click();
+
+    fixture.detectChanges();
+    animationElem = getElement('.myDpAnimationRotateOut');
+    expect(animationElem).not.toBe(null);
+
+    fixture.detectChanges();
+    let input = getElement('.myDateInput');
+    expect(input.value).toBe('28.10.2019');
   });
 
   it('options - stylesData', () => {

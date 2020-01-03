@@ -13,7 +13,7 @@ export {UtilService} from "./lib/services/angular-mydatepicker.util.service";
 export {DefaultConfigService} from "./lib/services/angular-mydatepicker.config.service";
 export {LocaleService} from "./lib/services/angular-mydatepicker.locale.service";
 
-export {AngularMyDatePickerFocusDirective} from "./lib/directives/angular-mydatepicker-focus.directive";
+export {AngularMyDatePickerCalendarDirective} from "./lib/directives/angular-mydatepicker-calendar.directive";
 
 export {IMyCalendarDay} from "./lib/interfaces/my-calendar-day.interface";
 export {IMyCalendarMonth} from "./lib/interfaces/my-calendar-month.interface";
@@ -39,6 +39,8 @@ export {IMySingleDateModel} from "./lib/interfaces/my-single-date-model.interfac
 export {IMyWeek} from "./lib/interfaces/my-week.interface";
 export {IMyWeekday} from "./lib/interfaces/my-weekday.interface";
 export {IMyStyles} from "./lib/interfaces/my-styles.interface";
+export {IMyDivHostElement} from "./lib/interfaces/my-div-host-element.interface";
+export {IMyCalendarAnimation} from "./lib/interfaces/my-calendar-animation.interface";
 
 export {CalToggle} from "./lib/enums/cal-toggle.enum";
 export {KeyCode} from "./lib/enums/key-code.enum";
@@ -46,5 +48,6 @@ export {KeyName} from "./lib/enums/key-name.enum";
 export {MonthId} from "./lib/enums/month-id.enum";
 export {Year} from "./lib/enums/year.enum";
 export {DefaultView} from "./lib/enums/default-view.enum";
+export {CalAnimation} from "./lib/enums/cal-animation.enum";
 
 export * from "./lib/constants/constants";
